@@ -1,8 +1,35 @@
 #include "RSA.h"
 
+/***** Konstruktor *****/
 RSA::RSA() {
     srand(static_cast <unsigned> (time(0)));
     generate_keys();
+}
+
+
+/***** Metody *****/
+int RSA::get_p() {
+    return this->p;
+}
+
+int RSA::get_q() {
+    return this->q;
+}
+
+int RSA::get_n() {
+    return this->n;
+}
+
+int RSA::get_e() {
+    return this->e;
+}
+
+int RSA::get_d() {
+    return this->d;
+}
+
+int RSA::get_phi_n() {
+    return this->phi_n;
 }
 
 int RSA::get_private_key() {
@@ -18,11 +45,11 @@ std::vector<int> RSA::get_public_keys() {
 }
 
 
-std::vector<int> RSA::chy(std::string string) {
-    std::vector<int> ret;
+std::vector<long int> RSA::chy(std::string string) {
+    std::vector<long int> ret;
     for (char letter : string) {
         int ascii = ord(letter);
-        int crip = pow(ascii, this->e);
+        long int crip = pow(ascii, this->e);
         crip = mod(crip, this->n);
         ret.push_back(crip);
         std::cout << letter << " " << crip << std::endl;
@@ -122,52 +149,72 @@ int RSA::generate_private_key() {
     return d;
 }
 
+void parameters(RSA x) {
+    std::cout << "Parametry : " << std::endl << "Pierwsza liczba pierwsza (p) : " << x.get_p() << std::endl << "Druga liczba pierwsza (q) : " << x.get_q() << std::endl;
+    std::cout << "Iloczyn p i q : " << x.get_n() << std::endl << "Funkcja phi dla n : " << x.get_phi_n() << std::endl << "Liczba E do klucza publicznego : " << x.get_e() << std::endl;
+    std::cout << "Liczba D do klucza prywatnego : " << x.get_d() << std::endl;
+}
+
+int menu() {
+    int input = 0;
+    std::cout << "\n" << "     " << "Mozliwe operacje : " << std::endl << std::endl;
+    std::cout << "     " << "1.Generuj klucze" << std::endl;
+    std::cout << "     " << "2.Wyswietlenie klucza prywatnego" << std::endl;
+    std::cout << "     " << "3.Wyswietl parametry" << std::endl;
+    std::cout << "     " << "4.Zapisz klucz do pliku:" << std::endl;
+    std::cout << "     " << "5.Wpisz tekst jawny (Szyfrowanie)" << std::endl;
+    std::cout << "     " << "6.Wpisz tekst zaszyfrowany (Deszyfrowanie)" << std::endl; //deszyfrowanie trzeba napisac
+    std::cout << "     " << "7.Exit" << std::endl;
+    std::cout << "\n" << "     " << "Operacja ktora chcesz wykonac to : ";
+
+    std::cin >> input;
+    std::cout << std::endl;
+
+    return input;
+}
+
 /***** MAIN *****/
 int main() {
-    RSA x = new RSA();
+    RSA x;
 
-    int input = 0;
-    while (input != 8) {
-        std::cout << "\n" << "     " << "Mozliwe operacje : " << std::endl << std::endl;
-        std::cout << "     " << "1.Generuj klucze" << std::endl;
-        std::cout << "     " << "2.Wyswietlenie klucza prywatnego" << std::endl;
-        std::cout << "     " << "3.Zapisz klucz do pliku:" << std::endl;
-        std::cout << "     " << "4.Wpisz tekst jawny:" << std::endl;
-        std::cout << "     " << "5." << std::endl;
-        std::cout << "     " << "6.Exit" << std::endl;
-        std::cout << "\n" << "     " << "Operacja ktora chcesz wykonac to : ";
-       
-        std::cin >> input;
-        std::cout << std::endl;
+    std::string txt;
 
-    }
+    while (true) {
+        int input = 0;
+        input = menu();
+        switch (input) {
 
-    if (input == 1) {
-        std::cout << "Wygenerowano klucze" << std::endl;
-        RSA x = new RSA();
-    }
-    else if (input == 1) {
-        std::cout << "Twoj klucz prywatny: " << x.get_private_key() << std::endl;
-    }
-    else if (input == 2) {
-        ;
-    }
-    else if (input == 3) {
-        ;
-    }
-    else if (input == 4) {
-        std::string txt;
-        std::cin >> txt;
-        RSA::chy(txt);
+        case 1:
+            std::cout << "Wygenerowano klucze" << std::endl;
+            break;
 
-    }
-    else if (input == 5) {
+        case 2:
+            std::cout << "Twoj klucz prywatny: " << x.get_private_key() << std::endl;
+            break;
 
+        case 3:
+            parameters(x);
+            break;
+
+        case 4:
+            // zrobic zapis kluczy do pliku 
+            break;
+
+        case 5:
+            std::cout << "Podaj teskt do zaszyfrowania: ";
+            std::cin >> txt;
+            x.chy(txt);
+            break;
+
+        case 6:
+            //deszyfrowanie trzeba napisac
+            break;
+
+        case 7:
+            return 0;
+
+        default:
+            std::cout << "\n     Prosze podac poprawny numer operacji\n";
+        }
     }
-    else if (input == 6) {
-        return 0;
-    }
-    else {
-        std::cout << "\n     Prosze podac poprawny numer operacji\n";
-    };
 }

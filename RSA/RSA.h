@@ -14,7 +14,14 @@ public:
     RSA();
     int get_private_key();
     std::vector<int> get_public_keys();
-    std::vector<int> chy(std::string string);
+    std::vector<long int> chy(std::string string);
+    int get_p();
+    int get_q();
+    int get_n();
+    int get_e();
+    int get_d();
+    int get_phi_n();
+    void parameters(RSA x);
 
 private:
     void generate_keys();
