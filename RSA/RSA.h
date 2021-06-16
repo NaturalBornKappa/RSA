@@ -14,7 +14,7 @@ public:
     RSA();
     int get_private_key();
     std::vector<int> get_public_keys();
-    std::vector<long int> chy(std::string string);
+    std::vector<long int> encrypt(std::string string);
     int get_p();
     int get_q();
     int get_n();

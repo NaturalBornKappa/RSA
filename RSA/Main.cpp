@@ -45,14 +45,14 @@ std::vector<int> RSA::get_public_keys() {
 }
 
 
-std::vector<long int> RSA::chy(std::string string) {
+std::vector<long int> RSA::encrypt(std::string string) {
     std::vector<long int> ret;
     for (char letter : string) {
         int ascii = ord(letter);
-        long int crip = pow(ascii, this->e);
-        crip = mod(crip, this->n);
-        ret.push_back(crip);
-        std::cout << letter << " " << crip << std::endl;
+        long int encripted = pow(ascii, this->e);
+        encripted = mod(encripted, this->n);
+        ret.push_back(encripted);
+        std::cout << letter << " " << encripted << std::endl;
     }
     return ret;
 }
@@ -203,7 +203,7 @@ int main() {
         case 5:
             std::cout << "Podaj teskt do zaszyfrowania: ";
             std::cin >> txt;
-            x.chy(txt);
+            x.encrypt(txt);
             break;
 
         case 6:
