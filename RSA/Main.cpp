@@ -43,20 +43,63 @@ std::vector<int> RSA::get_public_keys() {
     vec.push_back(this->e);
     return vec;
 }
+int RSA::pow_mod(int p, int q, int n) { // Ta funckja musi zle dzialac https://eduinf.waw.pl/inf/alg/001_search/0067.php jednak chyba musi byc jak na tej stronie ta funkcja pot_mod tylko ja jej nie rozumiem :/ 
+    int result = 0;
+    for (int i = 1; q > i;) {
+        result = mod(result * mod((2 * (pow(p, i))), n), n);
+        i = i * 2;
+    }
+    return result;
+}
 
+std::vector<long long int> RSA::encrypt(std::string string) {
+    std::vector<long long int> ret;
 
-std::vector<long int> RSA::encrypt(std::string string) {
-    std::vector<long int> ret;
-    for (char letter : string) {
+    /*STARA WERSJA:
+        for (char letter : string) {
         int ascii = ord(letter);
         long int encripted = pow(ascii, this->e);
         encripted = mod(encripted, this->n);
         ret.push_back(encripted);
         std::cout << letter << " " << encripted << std::endl;
+      KONIEC STAREJ WERSJI*/
+
+    std::fstream file;
+    file.open("cryptogram", std::ios::app);
+    for (int i = 0; i < string.length(); i++) {
+        int ascii = ord(string.at(i));
+        // long long int encripted = pow_mod(ascii, this->e,this->n);
+         //ret.push_back(encripted);
+        // file << encripted << std::endl;
+        // std::cout << string.at(i) << " " << encripted << std::endl;
     }
+    file.close();
     return ret;
 }
-
+std::vector<long long int> RSA::decrypt()
+{
+    std::vector<long long int> ret;
+    int cryptogram;
+    char letter;
+    int line = 0;
+    std::string txt;
+    std::fstream file;
+    file.open("cryptogram.txt", std::ios::in);
+    if (file.good() == false)
+    {
+        std::cout << "Nie udalo sie otworzyc pliku :(";
+        exit(0);
+    }
+    while (!file.eof())
+    {
+        file >> cryptogram;
+        // int decrypted = pow_mod(cryptogram, this->d, this->n);
+         //letter = (char)decrypted;
+         //ret.push_back(decrypted);
+        // std::cout << letter;
+    }
+    file.close();
+}
 
 void RSA::generate_keys() {
     this->p = generate_prime();
@@ -75,8 +118,6 @@ int RSA::totient(int n) {
         return n - 1;
     }
 }
-
-
 bool RSA::isprime(int n) {
     if (n <= 1)  return false;
     if (n <= 3)  return true;
@@ -124,7 +165,7 @@ char RSA::chr(int i) {
 int RSA::generate_prime() {
     int e;
     do {
-        e = generate_random();
+        e = generate_random(0, 500);
     } while (!isprime(e));
     return e;
 }
@@ -140,9 +181,8 @@ int RSA::mod(int x, int y) {
     return x % y;
 }
 
-
 int RSA::generate_private_key() {
-    int d = 0;
+    int d = 1;
     while (mod(d * this->e, this->phi_n) != 1) {
         d++;
     }
@@ -202,12 +242,13 @@ int main() {
 
         case 5:
             std::cout << "Podaj teskt do zaszyfrowania: ";
-            std::cin >> txt;
+            std::cin.ignore(std::numeric_limits < std::streamsize >::max(), '\n');
+            getline(std::cin, txt);
             x.encrypt(txt);
             break;
 
         case 6:
-            //deszyfrowanie trzeba napisac
+            x.decrypt();
             break;
 
         case 7:

@@ -7,6 +7,8 @@
 #include<math.h>
 #include<iostream>
 #include<time.h>
+#include<fstream>
+#include<cstdlib>
 
 
 class RSA {
@@ -14,7 +16,8 @@ public:
     RSA();
     int get_private_key();
     std::vector<int> get_public_keys();
-    std::vector<long int> encrypt(std::string string);
+    std::vector<long long int> encrypt(std::string string);
+    std::vector<long long int> decrypt();
     int get_p();
     int get_q();
     int get_n();
@@ -25,6 +28,7 @@ public:
 
 private:
     void generate_keys();
+    void write_in_file();
     int generate_private_key();
     bool isprime(int n);
     int totient(int n);
@@ -35,6 +39,7 @@ private:
     int mod(int x, int y);
     int ord(char c);
     char chr(int i);
+    int pow_mod(int p, int q, int n);
 
     int p, q, n, phi_n, e, d;
 };
