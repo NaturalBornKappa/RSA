@@ -44,24 +44,34 @@ std::vector<int> RSA::get_public_keys() {
     return vec;
 }
 int RSA::pow_mod(int p, int q,int n) { // Ta funckja musi Ÿle dzia³aæ https://eduinf.waw.pl/inf/alg/001_search/0067.php jednak chyba musi byæ jak na tej stronie ta funkcja pot_mod tylko ja jej nie rozumiem :/ 
-    int result=0;
-    for (int i = 1; q > i;) {
-        result = mod(result * mod((2*(pow(p, i))),n),n);
-        i = i * 2;
+    int i;
+    int result = 1;
+    long int x = p % n;
+
+    for (i = 1; i <= q; i <<= 1)
+    {
+        x %= n;
+        if ((q & i) != 0)
+        {
+            result *= x;
+            result %= n;
+        }
+        x *= x;
     }
+
     return result;
 }
 
 std::vector<long int> RSA::encrypt(std::string string) {
     std::vector<long int> ret;
     std::fstream file;
-    file.open("cryptogram", std::ios::app);
+    file.open("cryptogram.txt", std::ios::app);
     for (int i = 0; i < string.length();i++) {
         int ascii = ord(string.at(i));
-       // long long int encripted = pow_mod(ascii, this->e,this->n);
-        //ret.push_back(encripted);
-       // file << encripted << std::endl;
-       // std::cout << string.at(i) << " " << encripted << std::endl;
+        long long int encripted = pow_mod(ascii, this->e,this->n);
+        ret.push_back(encripted);
+        file << encripted << std::endl;
+        std::cout << string.at(i) << " " << encripted << std::endl;
     }
     file.close();
     return ret;
@@ -69,9 +79,9 @@ std::vector<long int> RSA::encrypt(std::string string) {
 std::vector<long int> RSA::decrypt()
 {
     std::vector<long int> ret;
+    std::string line;
     int cryptogram;
     char letter;
-    int line=0;
     std::string txt;
     std::fstream file;
     file.open("cryptogram.txt", std::ios::in);
@@ -80,13 +90,14 @@ std::vector<long int> RSA::decrypt()
         std::cout << "Nie udalo sie otworzyc pliku :(";
         exit(0);
     }
-    while (!file.eof())
+    while (getline(file, line))
     {
-        file >> cryptogram;
-       // int decrypted = pow_mod(cryptogram, this->d, this->n);
-        //letter = (char)decrypted;
-        //ret.push_back(decrypted);
-       // std::cout << letter;
+       
+          cryptogram = atoi(line.c_str());
+          int decrypted = pow_mod(cryptogram, this->d, this->n);
+          letter = (char)decrypted;
+          ret.push_back(decrypted);
+          std::cout << letter;
     }
     file.close();
 }
@@ -178,6 +189,13 @@ int RSA::generate_private_key() {
     }
     return d;
 }
+void RSA::write_in_file() {
+    std::fstream file;
+    file.open("parameters.txt", std::ios::app);
+    file << "Parametry: " << std::endl << "Pierwsza liczba pierwsza (p) :" << this->p << std::endl << "Druga liczba peirwsza (q) : " << this->q << std::endl;
+    file << "Iloczyn p i q :" << this->n << std::endl << "Funkcja phi dla n : " << this->phi_n << std::endl << "Liczba E do klucza publicznego : " << this->e << std::endl;
+    file << "Liczba D do klucza prywatnego : " << this->d << std::endl;
+}
 
 void parameters(RSA x) {
     std::cout << "Parametry : " << std::endl << "Pierwsza liczba pierwsza (p) : " << x.get_p() << std::endl << "Druga liczba pierwsza (q) : " << x.get_q() << std::endl;
@@ -191,7 +209,7 @@ int menu() {
     std::cout << "     " << "1.Generuj klucze" << std::endl;
     std::cout << "     " << "2.Wyswietlenie klucza prywatnego" << std::endl;
     std::cout << "     " << "3.Wyswietl parametry" << std::endl;
-    std::cout << "     " << "4.Zapisz klucz do pliku:" << std::endl;
+    std::cout << "     " << "4.Zapisz parametry do pliku:" << std::endl;
     std::cout << "     " << "5.Wpisz tekst jawny (Szyfrowanie)" << std::endl;
     std::cout << "     " << "6.Wpisz tekst zaszyfrowany (Deszyfrowanie)" << std::endl; //deszyfrowanie trzeba napisac
     std::cout << "     " << "7.Exit" << std::endl;
@@ -215,7 +233,7 @@ int main() {
         switch (input) {
 
         case 1:
-            std::cout << "Wygenerowano klucze" << std::endl;
+            std::cout << "Wygenerowano klucze " << std::endl;
             break;
 
         case 2:
@@ -227,7 +245,8 @@ int main() {
             break;
 
         case 4:
-            // zrobic zapis kluczy do pliku 
+            std::cout << "Zapisano parametry do pliku" << std::endl;
+            x.write_in_file();
             break;
 
         case 5:

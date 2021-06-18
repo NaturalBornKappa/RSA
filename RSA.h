@@ -26,10 +26,10 @@ public:
     int get_d();
     int get_phi_n();
     void parameters(RSA x);
+    void write_in_file();
 
 private:
     void generate_keys();
-    void write_in_file();
     int generate_private_key();
     bool isprime(int n);
     int totient(int n);
