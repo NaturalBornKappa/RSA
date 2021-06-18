@@ -8,6 +8,24 @@ RSA::RSA() {
 
 
 /***** Metody *****/
+void RSA::set_mod() {
+    int mod;
+    std::cout << "Wprowadz modul: " << std::endl;
+    std::cin >> mod;
+    this->n = mod;
+}
+void RSA::set_private_key() {
+    int key;
+    std::cout << "Wprowadz klucz prywatny:" << std::endl;
+    std::cin >> key;
+    this->d = key;
+}
+void RSA::set_public_key() {
+    int key;
+    std::cout << "Podaj klucz publiczny." << std::endl;
+    std::cin >> key;
+    this->e = key;
+}
 int RSA::get_p() {
     return this->p;
 }
@@ -43,22 +61,12 @@ std::vector<int> RSA::get_public_keys() {
     vec.push_back(this->e);
     return vec;
 }
-int RSA::pow_mod(int p, int q,int n) { // Ta funckja musi Ÿle dzia³aæ https://eduinf.waw.pl/inf/alg/001_search/0067.php jednak chyba musi byæ jak na tej stronie ta funkcja pot_mod tylko ja jej nie rozumiem :/ 
-    int i;
-    int result = 1;
-    long int x = p % n;
-
-    for (i = 1; i <= q; i <<= 1)
-    {
-        x %= n;
-        if ((q & i) != 0)
-        {
-            result *= x;
-            result %= n;
-        }
-        x *= x;
-    }
-
+int RSA::pow_mod(int p, int q,int n) { 
+    int result = p;
+    if (gcd(p, n) == 1)
+        q = q % phi_n;
+    for (int i = 1; i < q; i++)
+        result = (result * p) % n;
     return result;
 }
 
@@ -261,10 +269,17 @@ int main() {
             break;
 
         case 7:
+            std::string message;
             return 0;
-
+        case 8:
+            std::cout << "Ustawianie parametrow wprowadzonych przez uzytkownika: " << std::endl;
+            x.set_mod();
+            x.set_private_key();
+            x.set_public_key();
+            break;
         default:
             std::cout << "\n     Prosze podac poprawny numer operacji\n";
         }
+    
     }
 }

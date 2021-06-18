@@ -27,6 +27,9 @@ public:
     int get_phi_n();
     void parameters(RSA x);
     void write_in_file();
+    void set_private_key();
+    void set_public_key();
+    void set_mod();
 
 private:
     void generate_keys();
