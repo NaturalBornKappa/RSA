@@ -1,0 +1,7 @@
+Parametry: 
+Pierwsza liczba pierwsza (p) :41
+Druga liczba peirwsza (q) : 197
+Iloczyn p i q (n):8077
+Funkcja phi dla n : 7840
+Liczba E do klucza publicznego : 1611
+Liczba D do klucza prywatnego : 5251

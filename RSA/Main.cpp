@@ -8,6 +8,27 @@ RSA::RSA() {
 
 
 /***** Metody *****/
+void RSA::set_mod() {
+    int mod;
+    std::cout << "Wprowadz modul: " << std::endl;
+    std::cin >> mod;
+    this->n = mod;
+}
+/****** SETTERY *****/
+void RSA::set_private_key() {
+    int key;
+    std::cout << "Wprowadz klucz prywatny: " << std::endl;
+    std::cin >> key;
+    this->d = key;
+}
+void RSA::set_public_key() {
+    int key;
+    std::cout << "Podaj klucz publiczny: " << std::endl;
+    std::cin >> key;
+    this->e = key;
+}
+
+/***** GETTERY *****/
 int RSA::get_p() {
     return this->p;
 }
@@ -43,45 +64,35 @@ std::vector<int> RSA::get_public_keys() {
     vec.push_back(this->e);
     return vec;
 }
-int RSA::pow_mod(int p, int q, int n) { // Ta funckja musi zle dzialac https://eduinf.waw.pl/inf/alg/001_search/0067.php jednak chyba musi byc jak na tej stronie ta funkcja pot_mod tylko ja jej nie rozumiem :/ 
-    int result = 0;
-    for (int i = 1; q > i;) {
-        result = mod(result * mod((2 * (pow(p, i))), n), n);
-        i = i * 2;
-    }
+int RSA::pow_mod(int p, int q, int n) {
+    int result = p;
+    if (gcd(p, n) == 1)
+        q = q % phi_n;
+    for (int i = 1; i < q; i++)
+        result = (result * p) % n;
     return result;
 }
 
-std::vector<long long int> RSA::encrypt(std::string string) {
-    std::vector<long long int> ret;
-
-    /*STARA WERSJA:
-        for (char letter : string) {
-        int ascii = ord(letter);
-        long int encripted = pow(ascii, this->e);
-        encripted = mod(encripted, this->n);
-        ret.push_back(encripted);
-        std::cout << letter << " " << encripted << std::endl;
-      KONIEC STAREJ WERSJI*/
-
+std::vector<long int> RSA::encrypt(std::string string) {
+    std::vector<long int> ret;
     std::fstream file;
-    file.open("cryptogram", std::ios::app);
+    file.open("cryptogram.txt", std::ios::app);
     for (int i = 0; i < string.length(); i++) {
         int ascii = ord(string.at(i));
-        // long long int encripted = pow_mod(ascii, this->e,this->n);
-         //ret.push_back(encripted);
-        // file << encripted << std::endl;
-        // std::cout << string.at(i) << " " << encripted << std::endl;
+        long long int encripted = pow_mod(ascii, this->e, this->n);
+        ret.push_back(encripted);
+        file << encripted << std::endl;
+        std::cout << string.at(i) << " " << encripted << std::endl;
     }
     file.close();
     return ret;
 }
-std::vector<long long int> RSA::decrypt()
+void RSA::decrypt()
 {
-    std::vector<long long int> ret;
+    std::vector<long int> ret;
+    std::string line;
     int cryptogram;
     char letter;
-    int line = 0;
     std::string txt;
     std::fstream file;
     file.open("cryptogram.txt", std::ios::in);
@@ -90,13 +101,13 @@ std::vector<long long int> RSA::decrypt()
         std::cout << "Nie udalo sie otworzyc pliku :(";
         exit(0);
     }
-    while (!file.eof())
+    while (getline(file, line))
     {
-        file >> cryptogram;
-        // int decrypted = pow_mod(cryptogram, this->d, this->n);
-         //letter = (char)decrypted;
-         //ret.push_back(decrypted);
-        // std::cout << letter;
+        cryptogram = atoi(line.c_str());
+        int decrypted = pow_mod(cryptogram, this->d, this->n);
+        letter = (char)decrypted;
+        ret.push_back(decrypted);
+        std::cout << letter;
     }
     file.close();
 }
@@ -189,10 +200,26 @@ int RSA::generate_private_key() {
     return d;
 }
 
-void parameters(RSA x) {
+void RSA::clear_file(std::string filename) {
+    std::fstream file;
+    file.open(filename, std::ofstream::out | std::ofstream::trunc); // Czyszczenie istniejacego pliku
+    file.flush();
+    file.close();
+}
+
+void RSA::write_in_file() {
+    std::fstream file;
+    file.open("parameters.txt", std::ios::app);
+    file << "Parametry: " << std::endl << "Pierwsza liczba pierwsza (p) :" << this->p << std::endl << "Druga liczba peirwsza (q) : " << this->q << std::endl;
+    file << "Iloczyn p i q (n):" << this->n << std::endl << "Funkcja phi dla n : " << this->phi_n << std::endl << "Liczba E do klucza publicznego : " << this->e << std::endl;
+    file << "Liczba D do klucza prywatnego : " << this->d << std::endl;
+}
+
+/***** FUNKCJE *****/
+void display_parameters(RSA x) {
     std::cout << "Parametry : " << std::endl << "Pierwsza liczba pierwsza (p) : " << x.get_p() << std::endl << "Druga liczba pierwsza (q) : " << x.get_q() << std::endl;
-    std::cout << "Iloczyn p i q : " << x.get_n() << std::endl << "Funkcja phi dla n : " << x.get_phi_n() << std::endl << "Liczba E do klucza publicznego : " << x.get_e() << std::endl;
-    std::cout << "Liczba D do klucza prywatnego : " << x.get_d() << std::endl;
+    std::cout << "Iloczyn p i q (n): " << x.get_n() << std::endl << "Funkcja phi dla n : " << x.get_phi_n() << std::endl << "Liczba D do klucza prywatnego : " << x.get_d() << std::endl;
+    std::cout << "Liczba E do klucza publicznego : " << x.get_e() << std::endl;
 }
 
 int menu() {
@@ -201,10 +228,11 @@ int menu() {
     std::cout << "     " << "1.Generuj klucze" << std::endl;
     std::cout << "     " << "2.Wyswietlenie klucza prywatnego" << std::endl;
     std::cout << "     " << "3.Wyswietl parametry" << std::endl;
-    std::cout << "     " << "4.Zapisz klucz do pliku:" << std::endl;
-    std::cout << "     " << "5.Wpisz tekst jawny (Szyfrowanie)" << std::endl;
-    std::cout << "     " << "6.Wpisz tekst zaszyfrowany (Deszyfrowanie)" << std::endl; //deszyfrowanie trzeba napisac
-    std::cout << "     " << "7.Exit" << std::endl;
+    std::cout << "     " << "4.Zapisz parametry do pliku:" << std::endl;
+    std::cout << "     " << "5.Ustaw parametry" << std::endl;
+    std::cout << "     " << "6.Wpisz tekst jawny (Szyfrowanie)" << std::endl;
+    std::cout << "     " << "7.Deszyfrowanie z pliku" << std::endl;
+    std::cout << "     " << "8.Exit" << std::endl;
     std::cout << "\n" << "     " << "Operacja ktora chcesz wykonac to : ";
 
     std::cin >> input;
@@ -225,7 +253,7 @@ int main() {
         switch (input) {
 
         case 1:
-            std::cout << "Wygenerowano klucze" << std::endl;
+            std::cout << "Wygenerowano klucze " << std::endl;
             break;
 
         case 2:
@@ -233,29 +261,41 @@ int main() {
             break;
 
         case 3:
-            parameters(x);
+            display_parameters(x);
             break;
 
         case 4:
-            // zrobic zapis kluczy do pliku 
+            std::cout << "Zapisano parametry do pliku" << std::endl;
+            x.clear_file("parameters.txt");
+            x.write_in_file();
             break;
 
         case 5:
+            std::cout << "Ustawianie parametrow wprowadzonych przez uzytkownika: " << std::endl;
+            x.set_mod();
+            x.set_private_key();
+            x.set_public_key();
+            break;
+
+        case 6:
+            x.clear_file("cryptogram.txt");
             std::cout << "Podaj teskt do zaszyfrowania: ";
             std::cin.ignore(std::numeric_limits < std::streamsize >::max(), '\n');
             getline(std::cin, txt);
             x.encrypt(txt);
-            break;
-
-        case 6:
-            x.decrypt();
+            std::cout << "Zaszyfrowany tekst zapisany w pliku! ";
             break;
 
         case 7:
+            x.decrypt();
+            break;
+
+        case 8:
             return 0;
 
         default:
             std::cout << "\n     Prosze podac poprawny numer operacji\n";
         }
-    }
+
+   }
 }

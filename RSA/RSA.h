@@ -16,19 +16,22 @@ public:
     RSA();
     int get_private_key();
     std::vector<int> get_public_keys();
-    std::vector<long long int> encrypt(std::string string);
-    std::vector<long long int> decrypt();
+    std::vector<long int> encrypt(std::string string);
+    void decrypt();
+    void clear_file(std::string);
     int get_p();
     int get_q();
     int get_n();
     int get_e();
     int get_d();
     int get_phi_n();
-    void parameters(RSA x);
+    void write_in_file();
+    void set_private_key();
+    void set_public_key();
+    void set_mod();
 
 private:
     void generate_keys();
-    void write_in_file();
     int generate_private_key();
     bool isprime(int n);
     int totient(int n);
